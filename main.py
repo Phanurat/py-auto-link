@@ -1,23 +1,45 @@
-import pyautogui
+import sys
 import time
+import pyautogui
+import pyperclip
+import random
 
-# รอให้ผู้ใช้เตรียมตัว
-time.sleep(2)
+pyautogui.FAILSAFE = True
 
-# 1. เปิด Search ด้วย Win + S
-pyautogui.hotkey('win', 's')
-time.sleep(1)
+def process_open(message, browser_name="Microsoft Edge"):
+    print("Open Program...")  # แสดงสถานะ
+    pyautogui.hotkey('win', 's')
+    time.sleep(1)
+    pyperclip.copy(browser_name)
+    pyautogui.hotkey('ctrl', 'v')
+    time.sleep(1)
+    pyautogui.press('enter')
+    time.sleep(4)
 
-# 2. พิมพ์ 'edge'
-pyautogui.write('edge', interval=0.1)
-time.sleep(1)
+    pyperclip.copy(message)
+    pyautogui.hotkey('ctrl', 'v')
+    time.sleep(1)
+    pyautogui.press('enter')
+    time.sleep(3)
 
-# 3. กด Enter เพื่อเปิด Edge
-pyautogui.press('enter')
+    pyautogui.hotkey('alt', 'f4')
 
-# 4. รอให้ Edge เปิด (อาจต้องปรับเวลาให้เหมาะกับเครื่อง)
-time.sleep(5)
+def detect_post():
+    print("Processing Detect...")
+    time.sleep(3)
+    detect_options = ['links', 'posts', 'posts']
+    result = random.choice(detect_options)
+    return result
 
-# 5. พิมพ์ URL
-pyautogui.write('https://facebook.com', interval=0.1)
-pyautogui.press('enter')
+def send_detect(process_box):
+    print(f"Detect result: {process_box}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("No message provided")
+        sys.exit(1)
+
+    msg = sys.argv[1]
+    process_open(msg)
+    result = detect_post()
+    send_detect(result)

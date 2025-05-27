@@ -1,36 +1,42 @@
-from flask import Flask, render_template_string, redirect, url_for
+from flask import Flask, render_template_string, request
 import subprocess
 
 app = Flask(__name__)
 
-# หน้าเว็บ มีปุ่มกด
 HTML = '''
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Run main.py</title>
-</head>
+<head><title>Detect Process</title></head>
 <body>
-    <h1>กดปุ่มเพื่อเรียกใช้งาน main.py</h1>
-    <form action="/run" method="post">
-        <button type="submit">Run main.py</button>
-    </form>
+  <h1>พิมพ์ข้อความเพื่อเปิดใน Microsoft Edge</h1>
+  <form method="POST" action="/run-detect">
+    <input type="text" name="message" placeholder="พิมพ์ข้อความที่นี่" required />
+    <button type="submit">Run</button>
+  </form>
+  {% if process_result %}
+    <p>ผลลัพธ์: <pre>{{ process_result }}</pre></p>
+  {% endif %}
 </body>
 </html>
 '''
 
-@app.route('/')
+@app.route('/', methods=['GET'])
 def index():
     return render_template_string(HTML)
 
-@app.route('/run', methods=['POST'])
-def run_main():
-    try:
-        # เรียกไฟล์ main.py ด้วย subprocess
-        subprocess.Popen(['python', 'main.py'])
-    except Exception as e:
-        return f"Error: {e}"
-    return redirect(url_for('index'))
+@app.route('/run-detect', methods=['POST'])
+def run_detect():
+    message = request.form['message']
+
+    # ใช้ subprocess.run รอผลลัพธ์
+    result = subprocess.run(
+        ['python', 'main.py', message], 
+        capture_output=True, text=True
+    )
+
+    output = result.stdout or result.stderr or "No output"
+
+    return render_template_string(HTML, process_result=output)
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.154', port=4005, debug=True)
+    app.run(host="192.168.1.140", port=4005, debug=True)
